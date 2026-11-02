@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows.Forms;
 using BrightIdeasSoftware;
 using BulkCrapUninstaller.Controls;
@@ -30,6 +30,7 @@ namespace BulkCrapUninstaller.Forms
             uninstallerObjectListView = new ObjectListView();
             olvColumnDisplayName = new OLVColumn();
             olvColumnPublisher = new OLVColumn();
+            olvColumnCertificate = new OLVColumn();
             olvColumnRating = new OLVColumn();
             olvColumnDisplayVersion = new OLVColumn();
             olvColumnInstallDate = new OLVColumn();
@@ -42,10 +43,12 @@ namespace BulkCrapUninstaller.Forms
             olvColumnInstallLocation = new OLVColumn();
             olvColumnUninstallerKind = new OLVColumn();
             olvColumnSystemComponent = new OLVColumn();
+            olvColumnIntegrity = new OLVColumn();
             olvColumnProtected = new OLVColumn();
             olvColumnRegistryKeyName = new OLVColumn();
             olvColumnGuid = new OLVColumn();
             olvColumnQuietUninstallString = new OLVColumn();
+            olvColumnCustomNote = new OLVColumn();
             treeMap1 = new SimpleTreeMap.TreeMap();
             toolStrip = new ToolStrip();
             toolStripButton1 = new ToolStripButton();
@@ -150,6 +153,7 @@ namespace BulkCrapUninstaller.Forms
             viewTweaksToolStripMenuItem = new ToolStripMenuItem();
             viewUnregisteredToolStripMenuItem = new ToolStripMenuItem();
             viewUpdatesToolStripMenuItem = new ToolStripMenuItem();
+            viewInvalidToolStripMenuItem = new ToolStripMenuItem();
             viewWindowsFeaturesToolStripMenuItem = new ToolStripMenuItem();
             viewWindowsStoreAppsToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator28 = new ToolStripSeparator();
@@ -231,6 +235,7 @@ namespace BulkCrapUninstaller.Forms
             globalHotkeys1 = new Klocman.Subsystems.GlobalHotkeys();
             splashScreen1 = new Klocman.Forms.SplashScreen();
             usageTracker = new UsageTracker();
+            editCustomNoteMenuItem = new ToolStripMenuItem();
             ((ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -295,7 +300,9 @@ namespace BulkCrapUninstaller.Forms
             // uninstallerObjectListView
             // 
             uninstallerObjectListView.AllColumns.Add(olvColumnDisplayName);
+            uninstallerObjectListView.AllColumns.Add(olvColumnCustomNote);
             uninstallerObjectListView.AllColumns.Add(olvColumnPublisher);
+            uninstallerObjectListView.AllColumns.Add(olvColumnCertificate);
             uninstallerObjectListView.AllColumns.Add(olvColumnRating);
             uninstallerObjectListView.AllColumns.Add(olvColumnDisplayVersion);
             uninstallerObjectListView.AllColumns.Add(olvColumnInstallDate);
@@ -308,6 +315,7 @@ namespace BulkCrapUninstaller.Forms
             uninstallerObjectListView.AllColumns.Add(olvColumnInstallLocation);
             uninstallerObjectListView.AllColumns.Add(olvColumnUninstallerKind);
             uninstallerObjectListView.AllColumns.Add(olvColumnSystemComponent);
+            uninstallerObjectListView.AllColumns.Add(olvColumnIntegrity);
             uninstallerObjectListView.AllColumns.Add(olvColumnProtected);
             uninstallerObjectListView.AllColumns.Add(olvColumnRegistryKeyName);
             uninstallerObjectListView.AllColumns.Add(olvColumnGuid);
@@ -317,7 +325,7 @@ namespace BulkCrapUninstaller.Forms
             uninstallerObjectListView.CellEditActivation = ObjectListView.CellEditActivateMode.DoubleClick;
             uninstallerObjectListView.CellEditUseWholeCell = false;
             uninstallerObjectListView.CheckBoxes = true;
-            uninstallerObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnDisplayName, olvColumnPublisher, olvColumnRating, olvColumnDisplayVersion, olvColumnInstallDate, olvColumnSize, olvColumnStartup, olvColumnIs64, olvColumnUninstallString, olvColumnAbout, olvColumnInstallSource, olvColumnInstallLocation, olvColumnUninstallerKind, olvColumnSystemComponent, olvColumnProtected, olvColumnRegistryKeyName, olvColumnGuid, olvColumnQuietUninstallString });
+            uninstallerObjectListView.Columns.AddRange(new ColumnHeader[] { olvColumnDisplayName, olvColumnCustomNote, olvColumnPublisher, olvColumnCertificate, olvColumnRating, olvColumnDisplayVersion, olvColumnInstallDate, olvColumnSize, olvColumnStartup, olvColumnIs64, olvColumnUninstallString, olvColumnAbout, olvColumnInstallSource, olvColumnInstallLocation, olvColumnUninstallerKind, olvColumnSystemComponent, olvColumnProtected, olvColumnIntegrity, olvColumnRegistryKeyName, olvColumnGuid, olvColumnQuietUninstallString });
             resources.ApplyResources(uninstallerObjectListView, "uninstallerObjectListView");
             uninstallerObjectListView.FullRowSelect = true;
             uninstallerObjectListView.GridLines = true;
@@ -348,6 +356,10 @@ namespace BulkCrapUninstaller.Forms
             // olvColumnPublisher
             // 
             resources.ApplyResources(olvColumnPublisher, "olvColumnPublisher");
+            // 
+            // olvColumnCertificate
+            // 
+            resources.ApplyResources(olvColumnCertificate, "olvColumnCertificate");
             // 
             // olvColumnRating
             // 
@@ -408,6 +420,10 @@ namespace BulkCrapUninstaller.Forms
             // 
             resources.ApplyResources(olvColumnSystemComponent, "olvColumnSystemComponent");
             // 
+            // olvColumnIntegrity
+            // 
+            resources.ApplyResources(olvColumnIntegrity, "olvColumnIntegrity");
+            // 
             // olvColumnProtected
             // 
             olvColumnProtected.AspectName = "IsProtected";
@@ -424,6 +440,12 @@ namespace BulkCrapUninstaller.Forms
             // olvColumnQuietUninstallString
             // 
             resources.ApplyResources(olvColumnQuietUninstallString, "olvColumnQuietUninstallString");
+            // 
+            // olvColumnCustomNote
+            // 
+            olvColumnCustomNote.AspectName = "CustomNote";
+            olvColumnCustomNote.Text = "Custom Note";
+            olvColumnCustomNote.Width = 150;
             // 
             // treeMap1
             // 
@@ -616,7 +638,7 @@ namespace BulkCrapUninstaller.Forms
             // uninstallListContextMenuStrip
             // 
             uninstallListContextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            uninstallListContextMenuStrip.Items.AddRange(new ToolStripItem[] { uninstallContextMenuStripItem, quietUninstallContextMenuStripItem, manualUninstallToolStripMenuItem1, uninstallUsingMsiExecContextMenuStripItem, toolStripSeparator3, excludeToolStripMenuItem, includeToolStripMenuItem, toolStripSeparatorFiltering, runToolStripMenuItem, toolStripSeparator8, copyToClipboardContextMenuStripItem, deleteRegistryEntryContextMenuStripItem, renameContextMenuStripItem, toolStripSeparator6, openInExplorerContextMenuStripItem, openWebPageContextMenuStripItem, lookUpOnlineToolStripMenuItem, rateToolStripMenuItem, toolStripSeparator7, propertiesContextMenuStripItem });
+            uninstallListContextMenuStrip.Items.AddRange(new ToolStripItem[] { uninstallContextMenuStripItem, quietUninstallContextMenuStripItem, manualUninstallToolStripMenuItem1, uninstallUsingMsiExecContextMenuStripItem, toolStripSeparator3, excludeToolStripMenuItem, includeToolStripMenuItem, toolStripSeparatorFiltering, runToolStripMenuItem, toolStripSeparator8, copyToClipboardContextMenuStripItem, deleteRegistryEntryContextMenuStripItem, renameContextMenuStripItem, toolStripSeparator6, openInExplorerContextMenuStripItem, openWebPageContextMenuStripItem, lookUpOnlineToolStripMenuItem, rateToolStripMenuItem, toolStripSeparator7, editCustomNoteMenuItem, propertiesContextMenuStripItem });
             uninstallListContextMenuStrip.Name = "uninstallListContextMenuStrip";
             resources.ApplyResources(uninstallListContextMenuStrip, "uninstallListContextMenuStrip");
             uninstallListContextMenuStrip.Opening += UpdateUninstallListContextMenuStrip;
@@ -754,6 +776,12 @@ namespace BulkCrapUninstaller.Forms
             renameContextMenuStripItem.Name = "renameContextMenuStripItem";
             resources.ApplyResources(renameContextMenuStripItem, "renameContextMenuStripItem");
             renameContextMenuStripItem.Click += RenameEntries;
+            // 
+            // editCustomNoteMenuItem
+            // 
+            editCustomNoteMenuItem.Name = "editCustomNoteMenuItem";
+            editCustomNoteMenuItem.Text = "Edit note...";
+            editCustomNoteMenuItem.Click += editCustomNoteMenuItem_Click;
             // 
             // toolStripSeparator6
             // 
@@ -998,7 +1026,7 @@ namespace BulkCrapUninstaller.Forms
             // 
             // filteringToolStripMenuItem
             // 
-            filteringToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { advancedApplicationsToolStripMenuItem, basicApplicationsToolStripMenuItem, systemComponentsToolStripMenuItem, everythingToolStripMenuItem, toolStripSeparator20, automaticallyStartedToolStripMenuItem, onlyWebBrowsersToolStripMenuItem, toolStripSeparator31, viewTweaksToolStripMenuItem, viewUnregisteredToolStripMenuItem, viewUpdatesToolStripMenuItem, viewWindowsFeaturesToolStripMenuItem, viewWindowsStoreAppsToolStripMenuItem, toolStripSeparator28, searchToolStripMenuItem });
+            filteringToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { advancedApplicationsToolStripMenuItem, basicApplicationsToolStripMenuItem, systemComponentsToolStripMenuItem, everythingToolStripMenuItem, toolStripSeparator20, automaticallyStartedToolStripMenuItem, onlyWebBrowsersToolStripMenuItem, toolStripSeparator31, viewTweaksToolStripMenuItem, viewUnregisteredToolStripMenuItem, viewUpdatesToolStripMenuItem, viewInvalidToolStripMenuItem, viewWindowsFeaturesToolStripMenuItem, viewWindowsStoreAppsToolStripMenuItem, toolStripSeparator28, searchToolStripMenuItem });
             filteringToolStripMenuItem.Name = "filteringToolStripMenuItem";
             resources.ApplyResources(filteringToolStripMenuItem, "filteringToolStripMenuItem");
             filteringToolStripMenuItem.DropDownOpening += filteringToolStripMenuItem_DropDownOpening;
@@ -1062,15 +1090,21 @@ namespace BulkCrapUninstaller.Forms
             viewUnregisteredToolStripMenuItem.Name = "viewUnregisteredToolStripMenuItem";
             resources.ApplyResources(viewUnregisteredToolStripMenuItem, "viewUnregisteredToolStripMenuItem");
             viewUnregisteredToolStripMenuItem.Click += viewUnregisteredToolStripMenuItem_Click;
-            // 
+            //
             // viewUpdatesToolStripMenuItem
-            // 
+            //
             viewUpdatesToolStripMenuItem.Name = "viewUpdatesToolStripMenuItem";
             resources.ApplyResources(viewUpdatesToolStripMenuItem, "viewUpdatesToolStripMenuItem");
             viewUpdatesToolStripMenuItem.Click += viewUpdatesToolStripMenuItem_Click;
-            // 
+            //
+            // viewInvalidToolStripMenuItem
+            //
+            viewInvalidToolStripMenuItem.Name = "viewInvalidToolStripMenuItem";
+            resources.ApplyResources(viewInvalidToolStripMenuItem, "viewInvalidToolStripMenuItem");
+            viewInvalidToolStripMenuItem.Click += viewInvalidToolStripMenuItem_Click;
+            //
             // viewWindowsFeaturesToolStripMenuItem
-            // 
+            //
             viewWindowsFeaturesToolStripMenuItem.Name = "viewWindowsFeaturesToolStripMenuItem";
             resources.ApplyResources(viewWindowsFeaturesToolStripMenuItem, "viewWindowsFeaturesToolStripMenuItem");
             viewWindowsFeaturesToolStripMenuItem.Click += viewWindowsFeaturesToolStripMenuItem_Click;
@@ -1603,9 +1637,12 @@ namespace BulkCrapUninstaller.Forms
         internal OLVColumn olvColumnUninstallerKind;
         internal OLVColumn olvColumnAbout;
         internal OLVColumn olvColumnRegistryKeyName;
+        internal OLVColumn olvColumnCertificate;
         internal OLVColumn olvColumnSystemComponent;
+        internal OLVColumn olvColumnIntegrity;
         internal OLVColumn olvColumnQuietUninstallString;
         internal OLVColumn olvColumnProtected;
+        internal OLVColumn olvColumnCustomNote;
         private SaveFileDialog exportDialog;
         private ContextMenuStrip uninstallListContextMenuStrip;
         private ToolStripMenuItem uninstallContextMenuStripItem;
@@ -1751,6 +1788,7 @@ namespace BulkCrapUninstaller.Forms
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripMenuItem runToolStripMenuItem;
         private ToolStripMenuItem viewUpdatesToolStripMenuItem;
+        private ToolStripMenuItem viewInvalidToolStripMenuItem;
         private ToolStripMenuItem targetMenuItem;
         private ToolStripSeparator toolStripSeparator25;
         private ToolStripSeparator toolStripSeparator26;
@@ -1796,6 +1834,6 @@ namespace BulkCrapUninstaller.Forms
         private ToolStripMenuItem createRestorePointToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator33;
         private ToolStripMenuItem autosizeAllColumnsToolStripMenuItem;
+        private ToolStripMenuItem editCustomNoteMenuItem;
     }
 }
-

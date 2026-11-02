@@ -354,8 +354,21 @@ namespace BulkCrapUninstaller.Forms
             _uninstallerListPostProcesser.Dispose();
         }
 
+        private static bool _certificateColumnWasEnabled = true;
         private void OnTestCertificatesChanged(object x, SettingChangedEventArgs<bool> y)
         {
+            if (!y.NewValue)
+            {
+                _certificateColumnWasEnabled = olvColumnCertificate.IsVisible;
+                olvColumnCertificate.IsVisible = false;
+                uninstallerObjectListView.RebuildColumns();
+            }
+            else
+            {
+                olvColumnCertificate.IsVisible = _certificateColumnWasEnabled;
+                uninstallerObjectListView.RebuildColumns();
+            }
+
             if (!_listView.FirstRefreshCompleted)
                 return;
             if (y.NewValue) _uninstallerListPostProcesser.StartProcessingThread(_listView.FilteredUninstallers);
@@ -1419,7 +1432,7 @@ namespace BulkCrapUninstaller.Forms
             _anySysComponents = _listView.AllUninstallers.Any(x => x.SystemComponent);
             _anyUpdates = _listView.AllUninstallers.Any(x => x.IsUpdate);
             _anyInvalid = _listView.AllUninstallers.Any(x => !x.IsValid);
-            _anyTweaks = _listView.AllUninstallers.Any(x => x.RatingId != null && x.RatingId.StartsWith("tweak", StringComparison.OrdinalIgnoreCase));
+            _anyTweaks = _listView.AllUninstallers.Any(x => x.IsScriptTweak);
 
             propertiesSidebar.StoreAppsEnabled = _anyStoreApps;
             propertiesSidebar.WinFeaturesEnabled = _anyWinFeatures;
@@ -1435,8 +1448,7 @@ namespace BulkCrapUninstaller.Forms
             {
                 _setMan.LoadSorting();
 
-                var args = Environment.GetCommandLineArgs();
-                var dir = args.Skip(1).FirstOrDefault();
+                var dir = StartupArgumentTools.GetStartupUninstallListPath(Environment.GetCommandLineArgs());
                 if (!string.IsNullOrEmpty(dir))
                 {
                     try
@@ -1614,6 +1626,13 @@ namespace BulkCrapUninstaller.Forms
             filterEditor1.Search(true.ToString(), ComparisonMethod.Equals, nameof(ApplicationUninstallerEntry.IsUpdate));
         }
 
+        private void viewInvalidToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            everythingToolStripMenuItem_Click(sender, e);
+            _setMan.Selected.Settings.AdvancedTestInvalid = true;
+            filterEditor1.Search(false.ToString(), ComparisonMethod.Equals, nameof(ApplicationUninstallerEntry.IsValid));
+        }
+
         private void filterEditor1_FocusSearchTarget(object sender, EventArgs e)
         {
             uninstallerObjectListView.Focus();
@@ -1684,6 +1703,7 @@ namespace BulkCrapUninstaller.Forms
 
         private void viewUnregisteredToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            everythingToolStripMenuItem_Click(sender, e);
             _setMan.Selected.Settings.AdvancedDisplayOrphans = true;
             filterEditor1.Search(true.ToString(), ComparisonMethod.Equals, nameof(ApplicationUninstallerEntry.IsOrphaned));
         }
@@ -1768,6 +1788,7 @@ namespace BulkCrapUninstaller.Forms
 
             viewUnregisteredToolStripMenuItem.Enabled = isSimpleFiltering;
             viewUpdatesToolStripMenuItem.Enabled = isSimpleFiltering;
+            viewInvalidToolStripMenuItem.Enabled = isSimpleFiltering;
             viewWindowsStoreAppsToolStripMenuItem.Enabled = isSimpleFiltering;
             viewWindowsFeaturesToolStripMenuItem.Enabled = isSimpleFiltering;
         }
@@ -1859,7 +1880,7 @@ namespace BulkCrapUninstaller.Forms
         private void viewTweaksToolStripMenuItem_Click(object sender, EventArgs e)
         {
             everythingToolStripMenuItem_Click(sender, e);
-            filterEditor1.Search(@"\Resources\Scripts\Tweak", ComparisonMethod.Contains, nameof(ApplicationUninstallerEntry.UninstallString));
+            filterEditor1.Search(true.ToString(), ComparisonMethod.Equals, nameof(ApplicationUninstallerEntry.IsScriptTweak));
         }
 
         private void createRestorePointToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1882,6 +1903,43 @@ namespace BulkCrapUninstaller.Forms
         private void autosizeAllColumnsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             uninstallerObjectListView.AutoResizeColumns();
+        }
+
+        private void editCustomNoteMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedUninstallers = _listView.SelectedUninstallers.ToList();
+            if (selectedUninstallers.Count == 0) return;
+
+            string title;
+            string existingNote = string.Empty;
+
+            if (selectedUninstallers.Count == 1)
+            {
+                var entry = selectedUninstallers[0];
+                title = entry.DisplayName;
+                existingNote = entry.CustomNote;
+            }
+            else
+            {
+                title = $"{selectedUninstallers.Count} items";
+                var firstNote = selectedUninstallers[0].CustomNote ?? string.Empty;
+                if (selectedUninstallers.All(x => (x.CustomNote ?? string.Empty) == firstNote))
+                {
+                    existingNote = firstNote;
+                }
+            }
+
+            using (var dialog = new BulkCrapUninstaller.Forms.CustomNoteDialog(title, existingNote))
+            {
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    foreach (var entry in selectedUninstallers)
+                    {
+                        entry.CustomNote = dialog.NoteText;
+                    }
+                    this.uninstallerObjectListView.RefreshObjects(selectedUninstallers);
+                }
+            }
         }
     }
 }

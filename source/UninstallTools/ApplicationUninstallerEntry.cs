@@ -117,6 +117,14 @@ namespace UninstallTools
         [LocalisedName(typeof(Localisation), nameof(Localisation.Comment))]
         public string Comment { get; set; }
 
+        [XmlIgnore]
+        [LocalisedName(typeof(Localisation), nameof(Localisation.CustomNote))]
+        public string CustomNote
+        {
+            get => CustomNotesManager.GetNote(GetCacheId());
+            set => CustomNotesManager.SetNote(GetCacheId(), value);
+        }
+
         [LocalisedName(typeof(Localisation), nameof(Localisation.DisplayIcon))]
         public string DisplayIcon
         {
@@ -180,6 +188,11 @@ namespace UninstallTools
         [ComparisonTarget]
         [LocalisedName(typeof(Localisation), nameof(Localisation.IsUpdate))]
         public bool IsUpdate { get; set; }
+
+        [XmlIgnore]
+        [ComparisonTarget]
+        public bool IsScriptTweak => !string.IsNullOrEmpty(RatingId) &&
+                                     RatingId.StartsWith("Tweak-", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         ///     True if the application can be uninstalled. False if the uninstaller is missing or is otherwise invalid.

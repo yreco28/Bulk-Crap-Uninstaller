@@ -6251,6 +6251,19 @@ namespace BrightIdeasSoftware
             }
         }
 
+        protected override void OnGotFocus(EventArgs e)
+        {
+            try
+            {
+                base.OnGotFocus(e);
+            }
+            catch (InvalidOperationException)
+            {
+                // HACK: Eat InvalidOperationException coming from System.Windows.Forms.ListViewGroup.ListViewGroupAccessibleObject..ctor
+                // For some reason this started happening despite no code changes in ObjectListView. It seems to be caused by the move to newer .NET
+            }
+        }
+
         /// <summary>
         /// Handle the search for item m if possible.
         /// </summary>
@@ -6625,12 +6638,16 @@ namespace BrightIdeasSoftware
             // When the underlying control is destroyed, we need to recreate and reconfigure its tooltip
             if (cellToolTip != null)
             {
-                cellToolTip.PushSettings();
-                BeginInvoke((MethodInvoker)delegate
+                try
                 {
-                    UpdateCellToolTipHandle();
-                    cellToolTip.PopSettings();
-                });
+                    cellToolTip.PushSettings();
+                    BeginInvoke((MethodInvoker)delegate
+                    {
+                        UpdateCellToolTipHandle();
+                        cellToolTip.PopSettings();
+                    });
+                }
+                catch (OverflowException) { }
             }
 
             return false;
@@ -11826,7 +11843,7 @@ namespace BrightIdeasSoftware
         protected override void RescaleConstantsForDpi(int deviceDpiOld, int deviceDpiNew)
         {
             base.RescaleConstantsForDpi(deviceDpiOld, deviceDpiNew);
-            
+
             SuspendLayout();
             BeginUpdate();
 
